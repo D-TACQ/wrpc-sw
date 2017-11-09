@@ -225,10 +225,10 @@ distclean: clean
 	${CC} $(CFLAGS) $(PTPD_CFLAGS) $(INCLUDE_DIR) $(LIB_DIR) -c $*.c -o $@
 
 liblinux:
-	$(MAKE) -C liblinux
+	$(MAKE) -C liblinux CC=cc
 
 extest:
-	$(MAKE) -C liblinux/extest
+	$(MAKE) -C liblinux/extest CC=cc
 
 tools: .config gitmodules liblinux extest
 	$(MAKE) -C tools
