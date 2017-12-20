@@ -62,7 +62,9 @@ static void wrc_initialize(void)
 
 	timer_init(1);
 	get_hw_name(wrc_hw_name);
+#ifdef CONFIG_SDB_STORAGE
 	storage_read_hdl_cfg();
+#endif
 	wrpc_w1_init();
 	wrpc_w1_bus.detail = ONEWIRE_PORT;
 	w1_scan_bus(&wrpc_w1_bus);
