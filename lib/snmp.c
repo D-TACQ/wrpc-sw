@@ -122,6 +122,11 @@
 #define applyFailedDBFull 202
 #define applyFailedInvalidPN 203
 
+/* new defines for wrpcInitScriptConfigApply, some are used from
+ * wrpcPtpConfigApply */
+#define writeToFlash 1
+#define applyFailedEmptyLine 201
+
 /* defines for wrpcTemperatureTable */
 #define TABLE_ROW 1
 #define TABLE_COL 0
@@ -213,6 +218,8 @@ struct snmp_oid_limb {
 static struct s_sfpinfo snmp_ptp_config;
 static int ptp_config_apply_status;
 static int ptp_restart_status;
+static char init_script_line[32];
+static int init_script_config_apply_status;
 /* Keep the number of aux diag registers available in the FPGA bitstream */
 static uint32_t aux_diag_reg_ro_num;
 static uint32_t aux_diag_reg_rw_num;
@@ -260,6 +267,7 @@ static int set_pp(uint8_t *buf, struct snmp_oid *obj);
 static int set_p(uint8_t *buf, struct snmp_oid *obj);
 static int set_ptp_restart(uint8_t *buf, struct snmp_oid *obj);
 static int set_ptp_config(uint8_t *buf, struct snmp_oid *obj);
+static int set_init_script_config(uint8_t *buf, struct snmp_oid *obj);
 static int set_aux_diag(uint8_t *buf, struct snmp_oid *obj);
 static int data_aux_diag(uint8_t *buf, struct snmp_oid *obj, int mode);
 
@@ -276,6 +284,7 @@ static uint8_t oid_wrpcPtpConfigGroup[] =   {0x2B,6,1,4,1,96,101,1,6};
 static uint8_t oid_wrpcPortGroup[] =        {0x2B,6,1,4,1,96,101,1,7};
 /* Include wrpcSfpEntry into OID */
 static uint8_t oid_wrpcSfpTable[] =         {0x2B,6,1,4,1,96,101,1,8,1};
+static uint8_t oid_wrpcInitScriptConfigGroup[] =   {0x2B,6,1,4,1,96,101,1,9};
 /* In below OIDs zeros will be replaced in the snmp_init function by values
  * read from FPA */
 static uint8_t oid_wrpcAuxRoTable[] =       {0x2B,6,1,4,1,96,101,2,0,0,1,1};
@@ -346,6 +355,10 @@ static uint8_t oid_wrpcSfpPn[] =                 {2};
 static uint8_t oid_wrpcSfpDeltaTx[] =            {3};
 static uint8_t oid_wrpcSfpDeltaRx[] =            {4};
 static uint8_t oid_wrpcSfpAlpha[] =              {5};
+
+/* wrpcInitScriptConfigGroup */
+static uint8_t oid_wrpcInitScriptConfigApply[] =        {1,0};
+static uint8_t oid_wrpcInitScriptConfigLine[] =         {2,0};
 
 /* NOTE: to have SNMP_GET_NEXT working properly this array has to be sorted by
 	 OIDs */
@@ -440,6 +453,13 @@ static struct snmp_oid oid_array_wrpcSfpTable[] = {
 	{ 0, }
 };
 
+/* wrpcInitScriptConfigGroup */
+static struct snmp_oid oid_array_wrpcInitScriptConfigGroup[] = {
+	OID_FIELD_VAR(   oid_wrpcInitScriptConfigApply,     get_p,        set_init_script_config, ASN_INTEGER,   &init_script_config_apply_status),
+	OID_FIELD_VAR(   oid_wrpcInitScriptConfigLine,      get_p,        set_p,                  ASN_OCTET_STR, &init_script_line),
+	{ 0, }
+};
+
 static struct snmp_oid oid_array_wrpcAuxRoTable[] = {
 	OID_FIELD_VAR(NULL, get_aux_diag, NO_SET, ASN_UNSIGNED, AUX_DIAG_RO),
 	{ 0, }
@@ -461,6 +481,9 @@ static struct snmp_oid_limb oid_limb_array[] = {
 	OID_LIMB_FIELD(oid_wrpcPtpConfigGroup,   func_group, oid_array_wrpcPtpConfigGroup),
 	OID_LIMB_FIELD(oid_wrpcPortGroup,        func_group, oid_array_wrpcPortGroup),
 	OID_LIMB_FIELD(oid_wrpcSfpTable,         func_table, oid_array_wrpcSfpTable),
+#ifdef CONFIG_SNMP_INIT
+	OID_LIMB_FIELD(oid_wrpcInitScriptConfigGroup, func_group, oid_array_wrpcInitScriptConfigGroup),
+#endif
 #ifdef CONFIG_SNMP_AUX_DIAG
 	OID_LIMB_FIELD(oid_wrpcAuxRoTable,       func_aux_diag, oid_array_wrpcAuxRoTable),
 	OID_LIMB_FIELD(oid_wrpcAuxRwTable,       func_aux_diag, oid_array_wrpcAuxRwTable),
@@ -1335,6 +1358,52 @@ static int set_ptp_config(uint8_t *buf, struct snmp_oid *obj)
 	return ret;
 }
 
+static int set_init_script_config(uint8_t *buf, struct snmp_oid *obj)
+{
+	int ret;
+	int32_t *apply_mode;
+	char *args[3];
+	char arg2='\0'; /* end list of args */
+
+	apply_mode = obj->p;
+	ret = set_value(buf, obj, apply_mode);
+	if (ret <= 0)
+		return ret;
+
+	switch (*apply_mode) {
+	case writeToFlash:
+		if (init_script_line[0] == '\0') {
+			*apply_mode = applyFailedEmptyLine;
+			pp_printf("SNMP: empty init line\n");
+			break;
+		}
+
+		/* pass a list of args, the args[0] is ignored by
+		 * storage_init_add, so we don't care */
+		args[1] = init_script_line;
+		args[2] = &arg2;
+
+		if (storage_init_add((const char **)args) < 0)
+			*apply_mode = applyFailed;
+		else
+			*apply_mode = applySuccessful;
+		break;
+
+	case eraseFlash:
+		if (storage_init_erase() < 0)
+			*apply_mode = applyFailed;
+		else
+			*apply_mode = applySuccessful;
+		break;
+
+	default:
+		*apply_mode = applyFailed;
+	}
+	snmp_verbose("%s: init_script_line: %s\n", __func__,
+		     init_script_line);
+	return ret;
+}
+
 /*
  * Perverse...  snmpwalk does getnext anyways.
  *
@@ -1507,6 +1576,8 @@ static int snmp_respond(uint8_t *buf)
 		(void) func_aux_diag(NULL, 0, NULL, 0);
 		oid_array_wrpcAuxRwTable[0].oid_len = 0;
 		oid_array_wrpcAuxRoTable[0].oid_len = 0;
+		oid_array_wrpcInitScriptConfigGroup[0].oid_len = 0;
+		(void) oid_wrpcInitScriptConfigGroup;
 	}
 
 	for (a_i = 0, h_i = 0; a_i < sizeof(match_array); a_i++, h_i++) {

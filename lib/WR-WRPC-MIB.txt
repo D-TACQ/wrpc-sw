@@ -742,6 +742,38 @@ wrpcSfpAlpha                   OBJECT-TYPE
     ::= { wrpcSfpEntry 5 }
 
 -- ****************************************************************************
+wrpcInitScriptConfigGroup             OBJECT IDENTIFIER ::= { wrpcCore 9 }
+
+wrpcInitScriptConfigApply             OBJECT-TYPE
+    SYNTAX                     INTEGER {
+                                   na(0),
+                                   writeToFlash(1),
+                                   eraseFlash(50),
+                                   applySuccessful(100),
+                                   applyFailed(200),
+                                   applyFailedEmptyLine(201)
+                               }
+    MAX-ACCESS                 read-write
+    STATUS                     current
+    DESCRIPTION
+            "Make a change to a init script
+            writeToFlash - Add a defined command from wrpcInitScriptConfigLine to the init script
+            eraseFlash - Erase init script in the flash.
+            applySuccessful - Configuration applied successfully.
+            applyFailed - Failed to update init script.
+            applyFailedEmptyLine - Failed to update init script because wrpcInitScriptConfigLine is empty.
+            "
+    ::= { wrpcInitScriptConfigGroup 1 }
+
+wrpcInitScriptConfigLine       OBJECT-TYPE
+    SYNTAX                     DisplayString (SIZE(0..31))
+    MAX-ACCESS                 read-write
+    STATUS                     current
+    DESCRIPTION
+            "Line to be added to the init script."
+    ::= { wrpcInitScriptConfigGroup 2 }
+
+-- ****************************************************************************
 
 
 END

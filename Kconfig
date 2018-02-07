@@ -175,13 +175,21 @@ config SNMP_SET
 	help
 	  This option enables support for SET requests for Mini SNMP responder
 
+config SNMP_INIT
+	depends on SNMP && BUILD_INIT
+	default y if BUILD_INIT
+	default n
+	boolean "Adds support of changing init script/commands via SNMP"
+	help
+	  This option adds a branch wrpcInitScriptConfigGroup to the SNMP
+
 config SNMP_AUX_DIAG
 	depends on SNMP && AUX_DIAG
 	default y if AUX_DIAG
 	default n
 	boolean "Adds support of auxiliary diagnostics registers to SNMP"
 	help
-	  This option adds branch wrpcAuxDiag to the SNMP
+	  This option adds a branch wrpcAuxDiag to the SNMP
 
 config BUILD_INIT
 	depends on WR_NODE
