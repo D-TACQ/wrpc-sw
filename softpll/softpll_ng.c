@@ -339,10 +339,7 @@ void spll_init(int mode, int slave_ref_channel, int align_pps)
 		mpll_init(&s->aux[i].pll.dmtd, slave_ref_channel, spll_n_chan_ref + i + 1);
 		s->aux[i].seq_state = AUX_DISABLED;
 	}
-	
-	if(mode == SPLL_MODE_FREE_RUNNING_MASTER)
-		PPSG->ESCR = PPSG_ESCR_PPS_VALID | PPSG_ESCR_TM_VALID;
-	
+
 	for (i = 0; i < spll_n_chan_ref; i++)
 		ptracker_init(&s->ptrackers[i], i, PTRACKER_AVERAGE_SAMPLES);
 

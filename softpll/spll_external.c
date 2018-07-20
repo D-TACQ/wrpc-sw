@@ -132,7 +132,6 @@ int external_align_fsm(volatile struct spll_external_state *s)
 
 		case ALIGN_STATE_INIT_CSYNC:
 			if (PPSG->ESCR & PPSG_ESCR_SYNC) {
-			    PPSG->ESCR = PPSG_ESCR_PPS_VALID; // enable PPS output (even though it's not aligned yet)
 				s->align_timer = timer_get_tics() + 2 * TICS_PER_SECOND;
 				s->align_state = ALIGN_STATE_WAIT_CSYNC;
 				done_sth++;
