@@ -109,6 +109,8 @@ static void wrc_sim_initialize(void)
 	minic_init();
 	shw_pps_gen_init();
 	spll_very_init();
+  /* wait for link up before enabling tm_time_valid_o */
+  while (ep_link_up(NULL) == 0) {}
 	shw_pps_gen_enable_output(1);
 }
 /*
