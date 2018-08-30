@@ -103,6 +103,10 @@ static int bootp_poll(void)
 	if (ip_status != IP_TRAINING)
 		return 0;
 
+	/* no extra traffic when abscal is in progress */
+	if (HAS_ABSCAL && ptp_mode == WRC_MODE_ABSCAL)
+		return 0;
+
 	if (len > 0)
 		ret = process_bootp(buf, len);
 

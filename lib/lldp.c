@@ -245,6 +245,10 @@ static int lldp_poll(void)
 	uint8_t new_mac[ETH_ALEN];
 	static uint8_t old_mac[ETH_ALEN];
 
+	/* no extra traffic when abscal is in progress */
+	if (HAS_ABSCAL && ptp_mode == WRC_MODE_ABSCAL)
+		return 0;
+
 	/* periodic tasks */
 	if (ticks > LLDP_TX_TICK_INTERVAL) {
 		get_mac_addr(new_mac);

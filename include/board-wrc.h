@@ -58,4 +58,10 @@ int board_update(void);
 #define HAS_IP 0
 #endif
 
+#ifdef CONFIG_ABSCAL
+#define HAS_ABSCAL 1
+#else
+#define HAS_ABSCAL 0
+#endif
+
 #endif /* __BOARD_WRC_H */
