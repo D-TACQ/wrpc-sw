@@ -310,9 +310,10 @@ found_exit:
  */
 int get_persistent_mac(uint8_t portnum, uint8_t *mac)
 {
-	int ret;
+	int ret = 0;
 	int i, class;
 	uint64_t rom;
+	struct w1_dev *d;
 
 	if (IS_HOST_PROCESS) {
 		/* we don't have sdb working, so get the real eth address */
@@ -321,10 +322,12 @@ int get_persistent_mac(uint8_t portnum, uint8_t *mac)
 	}
 
 	if (sdbfs_open_id(&wrc_sdb, SDB_VENDOR, SDB_DEV_MAC) < 0)
-		return -1;
-
-	ret = sdbfs_fread(&wrc_sdb, 0, mac, 6);
-	sdbfs_close(&wrc_sdb);
+		ret =-1;
+	else
+        {
+		ret = sdbfs_fread(&wrc_sdb, 0, mac, 6);
+		sdbfs_close(&wrc_sdb);
+        }
 
 	if (ret < 0)
 		pp_printf("%s: SDB error\n", __func__);
@@ -335,19 +338,20 @@ int get_persistent_mac(uint8_t portnum, uint8_t *mac)
 	}
 	if (ret < 0) {
 		pp_printf("%s: Using W1 serial number\n", __func__);
+		w1_scan_bus(&wrpc_w1_bus);
 		for (i = 0; i < W1_MAX_DEVICES; i++) {
-			class = w1_class(wrpc_w1_bus.devs + i);
-			if (class != 0x28 && class != 0x42)
-				continue;
-			rom = wrpc_w1_bus.devs[i].rom;
-			mac[0] = 0x22;
-			mac[1] = 0x33;
-			mac[2] = rom >> 32;
-			mac[3] = rom >> 24;
-			mac[4] = rom >> 16;
-			mac[5] = rom >> 8;
-			ret = 0;
-		}
+			d = wrpc_w1_bus.devs + i;
+			if (d->rom) {
+				mac[0] = 0x22;
+				mac[1] = 0x33;
+				mac[2] = 0xff & (d->rom >> 32);
+				mac[3] = 0xff & (d->rom >> 24);
+				mac[4] = 0xff & (d->rom >> 16);
+				mac[5] = 0xff & (d->rom >> 8);
+				ret = 0;
+				break;
+			}
+                }
 	}
 	if (ret < 0) {
 		pp_printf("%s: failure\n", __func__);
