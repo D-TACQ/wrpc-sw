@@ -1498,12 +1498,13 @@ static int snmp_respond(uint8_t *buf)
 	 * functions below when SNMP compiled without SET support.
 	 * These functions will never be called here. */
 	if (0) {
-		set_p(NULL, NULL);
-		set_pp(NULL, NULL);
-		set_ptp_config(NULL, NULL);
-		set_ptp_restart(NULL, NULL);
-		set_aux_diag(NULL, NULL);
-		func_aux_diag(NULL, 0, NULL, 0);
+		(void) set_init_script_config;
+		(void) set_p;
+		(void) set_pp;
+		(void) set_ptp_config;
+		(void) set_ptp_restart;
+		(void) set_aux_diag;
+		(void) func_aux_diag(NULL, 0, NULL, 0);
 		oid_array_wrpcAuxRwTable[0].oid_len = 0;
 		oid_array_wrpcAuxRoTable[0].oid_len = 0;
 	}
