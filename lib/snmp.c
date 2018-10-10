@@ -127,6 +127,10 @@
 #define writeToFlash 1
 #define applyFailedEmptyLine 201
 
+/* new defines for oid_wrpcSdbApply, some are used from
+ * wrpcPtpConfigApply */
+#define applyFailedEmptyParam 201
+
 /* defines for wrpcTemperatureTable */
 #define TABLE_ROW 1
 #define TABLE_COL 0
@@ -220,6 +224,13 @@ static int ptp_config_apply_status;
 static int ptp_restart_status;
 static char init_script_line[32];
 static int init_script_config_apply_status;
+
+/* related to wrpcSdbGroup */
+static int sdb_apply_status;
+static int sdb_mem_type = -1;
+static int sdb_base_addr = -1;
+static int sdb_param = -1;
+
 /* Keep the number of aux diag registers available in the FPGA bitstream */
 static uint32_t aux_diag_reg_ro_num;
 static uint32_t aux_diag_reg_rw_num;
@@ -268,6 +279,7 @@ static int set_p(uint8_t *buf, struct snmp_oid *obj);
 static int set_ptp_restart(uint8_t *buf, struct snmp_oid *obj);
 static int set_ptp_config(uint8_t *buf, struct snmp_oid *obj);
 static int set_init_script_config(uint8_t *buf, struct snmp_oid *obj);
+static int set_sdb(uint8_t *buf, struct snmp_oid *obj);
 static int set_aux_diag(uint8_t *buf, struct snmp_oid *obj);
 static int data_aux_diag(uint8_t *buf, struct snmp_oid *obj, int mode);
 
@@ -285,6 +297,7 @@ static uint8_t oid_wrpcPortGroup[] =        {0x2B,6,1,4,1,96,101,1,7};
 /* Include wrpcSfpEntry into OID */
 static uint8_t oid_wrpcSfpTable[] =         {0x2B,6,1,4,1,96,101,1,8,1};
 static uint8_t oid_wrpcInitScriptConfigGroup[] =   {0x2B,6,1,4,1,96,101,1,9};
+static uint8_t oid_wrpcSdbGroup[] =         {0x2B,6,1,4,1,96,101,1,10};
 /* In below OIDs zeros will be replaced in the snmp_init function by values
  * read from FPA */
 static uint8_t oid_wrpcAuxRoTable[] =       {0x2B,6,1,4,1,96,101,2,0,0,1,1};
@@ -359,6 +372,13 @@ static uint8_t oid_wrpcSfpAlpha[] =              {5};
 /* wrpcInitScriptConfigGroup */
 static uint8_t oid_wrpcInitScriptConfigApply[] =        {1,0};
 static uint8_t oid_wrpcInitScriptConfigLine[] =         {2,0};
+
+/* oid_wrpcSdbGroup */
+static uint8_t oid_wrpcSdbApply[] =              {1,0};
+static uint8_t oid_wrpcSdbMemType[] =            {2,0};
+static uint8_t oid_wrpcSdbBaseAddr[] =           {3,0};
+static uint8_t oid_wrpcSdbParam[] =              {4,0};
+
 
 /* NOTE: to have SNMP_GET_NEXT working properly this array has to be sorted by
 	 OIDs */
@@ -460,6 +480,15 @@ static struct snmp_oid oid_array_wrpcInitScriptConfigGroup[] = {
 	{ 0, }
 };
 
+/* wrpcSdbGroup */
+static struct snmp_oid oid_array_wrpcSdbGroup[] = {
+	OID_FIELD_VAR(   oid_wrpcSdbApply,    get_p,        set_sdb,  ASN_INTEGER, &sdb_apply_status),
+	OID_FIELD_VAR(   oid_wrpcSdbMemType,  get_p,        set_p,    ASN_INTEGER, &sdb_mem_type),
+	OID_FIELD_VAR(   oid_wrpcSdbBaseAddr, get_p,        set_p,    ASN_INTEGER, &sdb_base_addr),
+	OID_FIELD_VAR(   oid_wrpcSdbParam,    get_p,        set_p,    ASN_INTEGER, &sdb_param),
+	{ 0, }
+};
+
 static struct snmp_oid oid_array_wrpcAuxRoTable[] = {
 	OID_FIELD_VAR(NULL, get_aux_diag, NO_SET, ASN_UNSIGNED, AUX_DIAG_RO),
 	{ 0, }
@@ -483,6 +512,9 @@ static struct snmp_oid_limb oid_limb_array[] = {
 	OID_LIMB_FIELD(oid_wrpcSfpTable,         func_table, oid_array_wrpcSfpTable),
 #ifdef CONFIG_SNMP_INIT
 	OID_LIMB_FIELD(oid_wrpcInitScriptConfigGroup, func_group, oid_array_wrpcInitScriptConfigGroup),
+#endif
+#ifdef CONFIG_SNMP_SDB
+	OID_LIMB_FIELD(oid_wrpcSdbGroup,         func_group, oid_array_wrpcSdbGroup),
 #endif
 #ifdef CONFIG_SNMP_AUX_DIAG
 	OID_LIMB_FIELD(oid_wrpcAuxRoTable,       func_aux_diag, oid_array_wrpcAuxRoTable),
@@ -1404,6 +1436,58 @@ static int set_init_script_config(uint8_t *buf, struct snmp_oid *obj)
 	return ret;
 }
 
+static int set_sdb(uint8_t *buf, struct snmp_oid *obj)
+{
+	int ret;
+	int32_t *apply_mode;
+
+	uint8_t i2c_adr = FMC_EEPROM_ADR;
+	int blocksize	= 1;
+
+	apply_mode = obj->p;
+	ret = set_value(buf, obj, apply_mode);
+	if (ret <= 0)
+		return ret;
+	snmp_verbose("%s enter\n", __func__);
+
+	if (sdb_mem_type == -1
+	    || sdb_base_addr == -1
+	    || sdb_param == -1) {
+		*apply_mode = applyFailedEmptyParam;
+		pp_printf("%s wrong params\n", __func__);
+		return ret;
+	}
+
+	if (sdb_mem_type == MEM_FLASH)
+		blocksize = sdb_param * 1024;
+	else if (sdb_param)
+		i2c_adr = sdb_param;
+
+	switch (*apply_mode) {
+	case writeToFlash:
+		snmp_verbose("%s writeToFlash\n", __func__);
+		if (storage_gensdbfs(sdb_mem_type, sdb_base_addr, blocksize,
+		    i2c_adr) < 0)
+			*apply_mode = applyFailed;
+		else
+			*apply_mode = applySuccessful;
+		break;
+
+	case eraseFlash:
+		snmp_verbose("%s eraseFlash\n", __func__);
+		if (storage_sdbfs_erase(sdb_mem_type, sdb_base_addr, blocksize,
+		    i2c_adr) < 0)
+			*apply_mode = applyFailed;
+		else
+			*apply_mode = applySuccessful;
+		break;
+
+	default:
+		*apply_mode = applyFailed;
+	}
+	return ret;
+}
+
 /*
  * Perverse...  snmpwalk does getnext anyways.
  *
@@ -1578,6 +1662,8 @@ static int snmp_respond(uint8_t *buf)
 		oid_array_wrpcAuxRoTable[0].oid_len = 0;
 		oid_array_wrpcInitScriptConfigGroup[0].oid_len = 0;
 		(void) oid_wrpcInitScriptConfigGroup;
+		oid_array_wrpcSdbGroup[0].oid_len = 0;
+		(void) oid_wrpcSdbGroup;
 	}
 
 	for (a_i = 0, h_i = 0; a_i < sizeof(match_array); a_i++, h_i++) {

@@ -773,7 +773,61 @@ wrpcInitScriptConfigLine       OBJECT-TYPE
             "Line to be added to the init script."
     ::= { wrpcInitScriptConfigGroup 2 }
 
+    
 -- ****************************************************************************
+wrpcSdbGroup             OBJECT IDENTIFIER ::= { wrpcCore 10 }
 
+wrpcSdbApply             OBJECT-TYPE
+    SYNTAX                     INTEGER {
+                                   na(0),
+                                   writeToFlash(1),
+                                   eraseFlash(50),
+                                   applySuccessful(100),
+                                   applyFailed(200),
+                                   applyFailedEmptyParam(201)
+                               }
+    MAX-ACCESS                 read-write
+    STATUS                     current
+    DESCRIPTION
+            "Make a change to a init script
+            writeToFlash - Add a defined command from wrpcInitScriptConfigLine to the init script
+            eraseFlash - Erase init script in the flash.
+            applySuccessful - Configuration applied successfully.
+            applyFailed - Failed to update init script.
+            applyFailedEmptyParam - Failed to write to SDB, some params are empty is empty.
+            "
+    ::= { wrpcSdbGroup 1 }
+
+wrpcSdbMemType       OBJECT-TYPE
+    SYNTAX                     INTEGER {
+                                   flash(0),
+                                   eeprom(1),
+                                   w1eeprom(2),
+                                   fram(3)
+                               }
+    MAX-ACCESS                 read-write
+    STATUS                     current
+    DESCRIPTION
+            "Mem type"
+    ::= { wrpcSdbGroup 2 }
+
+wrpcSdbBaseAddr       OBJECT-TYPE
+    SYNTAX                     Integer32
+    MAX-ACCESS                 read-write
+    STATUS                     current
+    DESCRIPTION
+            "Base addr"
+    ::= { wrpcSdbGroup 3 }
+
+wrpcSdbParam       OBJECT-TYPE
+    SYNTAX                     Integer32
+    MAX-ACCESS                 read-write
+    STATUS                     current
+    DESCRIPTION
+            "Param"
+    ::= { wrpcSdbGroup 4 }
+
+    
+-- ****************************************************************************
 
 END

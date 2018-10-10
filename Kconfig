@@ -183,6 +183,13 @@ config SNMP_INIT
 	help
 	  This option adds a branch wrpcInitScriptConfigGroup to the SNMP
 
+config SNMP_SDB
+	depends on SNMP && GENSDBFS
+	default y
+	boolean "Adds support of generation of SDB via SNMP"
+	help
+	  This option adds a branch wrpcSdbGroup to the SNMP
+
 config SNMP_AUX_DIAG
 	depends on SNMP && AUX_DIAG
 	default y if AUX_DIAG
