@@ -351,8 +351,7 @@ found_exit:
 int get_persistent_mac(uint8_t portnum, uint8_t *mac)
 {
 	int ret = 0;
-	int i, class;
-	uint64_t rom;
+	int i;
 	struct w1_dev *d;
 
 	if (IS_HOST_PROCESS) {
