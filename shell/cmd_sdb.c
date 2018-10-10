@@ -10,6 +10,7 @@
 #include "syscon.h"
 #include "hw/memlayout.h"
 #include "storage.h"
+#include <flash.h>
 
 /*
  * args[1] - where to write sdbfs image (0 - Flash, 1 - I2C EEPROM,
@@ -33,6 +34,8 @@ static int cmd_sdb(const char *args[])
 	/* interpret args[3] as i2c adr or blocksize depending on memory type */
 	if (args[3] && atoi(args[1]) == MEM_FLASH)
 		blocksize = atoi(args[3])*1024;
+	else if (args[3] && atoi(args[1]) == MEM_FRAM)
+		blocksize = atoi(args[3]);
 	else if (args[3])
 		i2c_adr = atoi(args[3]);
 
@@ -45,10 +48,11 @@ static int cmd_sdb(const char *args[])
 		return 0;
 	}
 	if (!strcasecmp(args[0], "fs") && storage_cfg.valid &&
-			atoi(args[1]) == MEM_FLASH) {
+			(atoi(args[1]) == MEM_FLASH ||
+			 atoi(args[1]) == MEM_FRAM)) {
 		/* if available, we can also use Flash parameters specified with
 		 * HDL generics */
-		storage_gensdbfs(MEM_FLASH, storage_cfg.baseadr,
+		storage_gensdbfs(atoi(args[1]), storage_cfg.baseadr,
 				storage_cfg.blocksize, 0);
 		return 0;
 	}
@@ -59,12 +63,12 @@ static int cmd_sdb(const char *args[])
 		return 0;
 	}
 	if (!strcasecmp(args[0], "fse") && storage_cfg.valid &&
-			atoi(args[1]) == MEM_FLASH) {
-		storage_sdbfs_erase(MEM_FLASH, storage_cfg.baseadr,
+			(atoi(args[1]) == MEM_FLASH ||
+			 atoi(args[1]) == MEM_FRAM)) {
+		storage_sdbfs_erase(atoi(args[1]), storage_cfg.baseadr,
 				storage_cfg.blocksize, 0);
 		return 0;
 	}
-
 	return -EINVAL;
 }
 

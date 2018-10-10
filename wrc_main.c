@@ -30,6 +30,7 @@
 #include "lib/ipv4.h"
 #include "rxts_calibrator.h"
 #include "flash.h"
+#include "fram.h"
 
 #include "wrc_ptp.h"
 #include "system_checks.h"

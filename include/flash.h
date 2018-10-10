@@ -13,6 +13,10 @@
 
 #define FLASH_BLOCKSIZE 65536
 
+void delay(void);
+uint8_t bbspi_transfer(int cspin, uint8_t val);
+void flash_init(void);
+
 /* Flash interface functions */
 void	flash_init(void);
 int	flash_write(uint32_t addr, uint8_t *buf, int count);

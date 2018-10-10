@@ -17,7 +17,7 @@
 /*
  * Delay function - limit SPI clock speed to 10 MHz
  */
-static void delay(void)
+void delay(void)
 {
 	int i;
 
@@ -28,7 +28,7 @@ static void delay(void)
 /*
  * Bit-bang SPI transfer function
  */
-static uint8_t bbspi_transfer(int cspin, uint8_t val)
+uint8_t bbspi_transfer(int cspin, uint8_t val)
 {
 	int i;
 

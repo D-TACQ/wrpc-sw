@@ -22,6 +22,7 @@
 #define SDBFS_BIG_ENDIAN
 #include <libsdbfs.h>
 #include <flash.h>
+#include <fram.h>
 
 /*
  * This source file is a drop-in replacement of the legacy one: it manages
@@ -53,6 +54,22 @@ static int sdb_flash_write(struct sdbfs *fs, int offset, void *buf, int count)
 static int sdb_flash_erase(struct sdbfs *fs, int offset, int count)
 {
 	return flash_erase(offset, count);
+}
+
+/* Functions for FRAM access */
+static int sdb_fram_read(struct sdbfs *fs, int offset, void *buf, int count)
+{
+	return fram_read(offset, buf, count);
+}
+
+static int sdb_fram_write(struct sdbfs *fs, int offset, void *buf, int count)
+{
+	return fram_write(offset, buf, count);
+}
+
+static int sdb_fram_erase(struct sdbfs *fs, int offset, int count)
+{
+	return fram_erase(offset, count);
 }
 
 /* The methods for W1 access */
@@ -211,6 +228,11 @@ void storage_init(int chosen_i2cif, int chosen_i2c_addr)
 				0x170000,	/* after first FPGA bitstream */
 				0x2e0000,	/* after MultiBoot bitstream */
 				0x600000};	/* after SVEC AFPGA bitstream */
+	uint32_t entry_points_fram[] = {
+				0x000000,	/* fram base */
+				0x6000,
+				0x7000
+        };
 	int i, ret;
 
 	/*
@@ -233,9 +255,27 @@ void storage_init(int chosen_i2cif, int chosen_i2c_addr)
 		goto found_exit;
 	}
 
-
 	/*
-	 * 2. Look for w1 first: if there is no eeprom it fails fast
+	 * 2. Check if there is SDBFS in the FRAM.
+	 */
+	for (i = 0; i < ARRAY_SIZE(entry_points_fram); i++) {
+		fram_read(entry_points_fram[i], (void *)&magic, sizeof(magic));
+		if (magic == SDB_MAGIC)
+			break;
+	}
+	if (magic == SDB_MAGIC) {
+		pp_printf("sdbfs: found at %i in Fram\n",
+				entry_points_fram[i]);
+		wrc_sdb.drvdata = NULL;
+		wrc_sdb.blocksize = 0;
+		wrc_sdb.entrypoint = entry_points_fram[i];
+		wrc_sdb.read = sdb_fram_read;
+		wrc_sdb.write = sdb_fram_write;
+		wrc_sdb.erase = sdb_fram_erase;
+		goto found_exit;
+	}
+	/*
+	 * 3. Look for w1 first: if there is no eeprom it fails fast
 	 */
 	for (i = 0; i < ARRAY_SIZE(entry_points_eeprom); i++) {
 		ret = w1_read_eeprom_bus(&wrpc_w1_bus, entry_points_eeprom[i],
@@ -258,7 +298,7 @@ void storage_init(int chosen_i2cif, int chosen_i2c_addr)
 	}
 
 	/*
-	 * 3. If w1 failed, look for i2c: start from low offsets.
+	 * 4. If w1 failed, look for i2c: start from low offsets.
 	 */
 	i2c_params.ifnum = chosen_i2cif;
 	i2c_params.addr = EEPROM_START_ADR;
@@ -790,7 +830,10 @@ int storage_sdbfs_erase(int mem_type, uint32_t base_adr, uint32_t blocksize,
 		wrc_sdb.drvdata = &wrpc_w1_bus;
 		sdb_w1_erase(&wrc_sdb, base_adr, SDBFS_REC *
 				sizeof(struct sdb_device));
-	}
+	} else 	if (mem_type == MEM_FRAM) {
+		pp_printf("Erasing FRAM (0x%x)...\n", base_adr);
+		sdb_fram_erase(NULL, base_adr, SDBFS_REC * blocksize);
+        }
 	return 0;
 }
 
@@ -897,8 +940,14 @@ int storage_gensdbfs(int mem_type, uint32_t base_adr, uint32_t blocksize,
 			sdb_w1_write(&wrc_sdb, base_adr + i*size, &sdbfs[i],
 					size);
 		}
-	}
-
+	} else if (mem_type == MEM_FRAM) {
+		pp_printf("Formatting SDBFS in FRAM(0x%x)...\n", base_adr);
+		sdb_fram_erase(NULL, base_adr, SDBFS_REC * size);
+		for (i = 0; i < SDBFS_REC; ++i) {
+			sdb_fram_write(NULL, base_adr + i*size, &sdbfs[i],
+					size);
+		}
+        }
 	/* re-initialize storage after writing sdbfs image */
 	storage_init(WRPC_FMC_I2C, FMC_EEPROM_ADR);
 
