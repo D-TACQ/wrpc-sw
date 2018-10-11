@@ -1485,6 +1485,14 @@ static int set_sdb(uint8_t *buf, struct snmp_oid *obj)
 	default:
 		*apply_mode = applyFailed;
 	}
+
+	if (*apply_mode == applySuccessful) {
+		/* If apply was successful, clear sdb params */
+		sdb_mem_type = -1;
+		sdb_base_addr = -1;
+		sdb_param = -1;
+	}
+
 	return ret;
 }
 

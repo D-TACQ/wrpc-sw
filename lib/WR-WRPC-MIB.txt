@@ -789,12 +789,12 @@ wrpcSdbApply             OBJECT-TYPE
     MAX-ACCESS                 read-write
     STATUS                     current
     DESCRIPTION
-            "Make a change to a init script
-            writeToFlash - Add a defined command from wrpcInitScriptConfigLine to the init script
-            eraseFlash - Erase init script in the flash.
+            "Make a change to a sdbfs
+            writeToFlash - Generate sdb in flash; requires other OIDs in this group to be set first.
+            eraseFlash - Erase flash; requires other OIDs in this group to be set first.
             applySuccessful - Configuration applied successfully.
-            applyFailed - Failed to update init script.
-            applyFailedEmptyParam - Failed to write to SDB, some params are empty is empty.
+            applyFailed - Failed to update flash.
+            applyFailedEmptyParam - Failed to update flash, some params are empty.
             "
     ::= { wrpcSdbGroup 1 }
 
@@ -808,7 +808,7 @@ wrpcSdbMemType       OBJECT-TYPE
     MAX-ACCESS                 read-write
     STATUS                     current
     DESCRIPTION
-            "Mem type"
+            "Memory type"
     ::= { wrpcSdbGroup 2 }
 
 wrpcSdbBaseAddr       OBJECT-TYPE
@@ -816,7 +816,7 @@ wrpcSdbBaseAddr       OBJECT-TYPE
     MAX-ACCESS                 read-write
     STATUS                     current
     DESCRIPTION
-            "Base addr"
+            "Base address"
     ::= { wrpcSdbGroup 3 }
 
 wrpcSdbParam       OBJECT-TYPE
@@ -824,7 +824,9 @@ wrpcSdbParam       OBJECT-TYPE
     MAX-ACCESS                 read-write
     STATUS                     current
     DESCRIPTION
-            "Param"
+            "The meaning of this OID depends on the type of selected storage.
+            It is either the sector size in kilobytes (for Flash) or I2C chip
+            address (for I2C EEPROM)."
     ::= { wrpcSdbGroup 4 }
 
     
