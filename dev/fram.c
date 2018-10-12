@@ -70,7 +70,7 @@ int fram_erase(uint32_t addr, int count)
 	uint8_t buf[1] = {0xff};
 
 	for (i = 0; i < count; i++)
-		flash_write(addr+i, buf , 1);
+		fram_write(addr+i, buf , 1);
 	return count;
 }
 
