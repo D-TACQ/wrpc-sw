@@ -435,7 +435,7 @@ int set_persistent_mac(uint8_t portnum, uint8_t *mac)
 
 
 /* Erase SFB database in the memory */
-int32_t storage_sfpdb_erase(void)
+int storage_sfpdb_erase(void)
 {
 	int ret;
 
