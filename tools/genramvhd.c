@@ -42,12 +42,12 @@ void help()
 }
 
 /* We don't want localized versions from ctype.h */
-static int my_isalpha(char c)
+static inline int my_isalpha(char c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-static int my_isok(char c)
+static inline int my_isok(char c)
 {
 	return c == '_' || my_isalpha(c) || (c >= '0' && c <= '9');
 }
