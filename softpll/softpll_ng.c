@@ -283,6 +283,7 @@ void _irq_entry(void)
 void spll_very_init()
 {
 	PPSG = (volatile struct PPSG_WB *)BASE_PPS_GEN;
+	PPSG->ESCR = 0;
 	PPSG->CR = PPSG_CR_CNT_EN | PPSG_CR_CNT_RST | PPSG_CR_PWIDTH_W(PPS_WIDTH);
 }
 
@@ -317,7 +318,6 @@ void spll_init(int mode, int slave_ref_channel, int align_pps)
 	SPLL->OCCR = 0;
 	SPLL->DEGLITCH_THR = 1000;
 
-	PPSG->ESCR = 0;
 	PPSG->CR |= PPSG_CR_CNT_EN;
 
 	if(mode == SPLL_MODE_DISABLED)
