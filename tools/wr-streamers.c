@@ -30,6 +30,7 @@ static char *stats_mesg[][2] = {
         {"Counter of the accumulated frequency", "acc_freq_cnt"},
         {"Number of indications that one or more blocks in a"
 	 "frame were lost (probably CRC error) since reset", "rx_cnt_lost_blk"},
+        {"Latency statistics with raw values for calculations", "rx_lat_raw"}
 };
 
 int read_stats(struct cmd_desc *cmdd, struct atom *atoms)
@@ -43,10 +44,10 @@ int read_stats(struct cmd_desc *cmdd, struct atom *atoms)
 	if (atoms == (struct atom *)VERBOSE_HELP) {
 		printf("%s - options\n"
 		       "\t0: %s\n\t1: %s\n\t2: %s\n\t3: %s\n\t4: %s\n\t5: %s\n"
-		       "\t6: %s\n\t7: %s\n", cmdd->name, stats_mesg[0][0],
+		       "\t6: %s\n\t7: %s\n\t8: %s\n", cmdd->name, stats_mesg[0][0],
 		       stats_mesg[1][0], stats_mesg[2][0], stats_mesg[3][0],
 		       stats_mesg[4][0], stats_mesg[5][0], stats_mesg[6][0],
-		       stats_mesg[7][0]);
+		       stats_mesg[7][0], stats_mesg[8][0]);
 		return 1;
 	}
 
@@ -76,15 +77,9 @@ int read_stats(struct cmd_desc *cmdd, struct atom *atoms)
 			  << 32) | iomemr32(wrstm->is_be, ptr->RX_STAT12);
 		avg_lat = (((double)acc_lat) * 8 / 1000) / (double)cnt_lat;
 		fprintf(stderr, "Latency [us]    : min=%10g max=%10g avg =%10g "
-			"(0x%x, 0x%x, %lu=%u << 32 | %u)*8/1000 us, "
-			"cnt =%lu overflow =%d)\n",
-			min_lat, max_lat, avg_lat,
-			iomemr32(wrstm->is_be, ptr->RX_STAT1),
-			iomemr32(wrstm->is_be, ptr->RX_STAT0),
-			acc_lat, iomemr32(wrstm->is_be, ptr->RX_STAT11),
-			iomemr32(wrstm->is_be, ptr->RX_STAT10),
-			cnt_lat, overflow);
-		fprintf(stderr, "Frames  [number]: tx =%lu rx =%lu lost=%lu "
+			"(overflow    =%d)\n",
+			min_lat, max_lat, avg_lat, overflow);
+		fprintf(stderr, "Frames  [number]: tx =%10lu rx =%10lu lost=%10lu "
 			"(lost blocks =%lu)\n",
 			((uint64_t)iomemr32(wrstm->is_be, ptr->TX_STAT3)
 			<< 32) | iomemr32(wrstm->is_be, ptr->TX_STAT2),
@@ -135,6 +130,30 @@ int read_stats(struct cmd_desc *cmdd, struct atom *atoms)
 			((uint64_t)iomemr32(wrstm->is_be, ptr->RX_STAT9)
 			<< 32) | iomemr32(wrstm->is_be, ptr->RX_STAT8));
 		break;
+        case 8: 
+		max_lat = WR_STREAMERS_RX_STAT0_RX_LATENCY_MAX_R(
+			  iomemr32(wrstm->is_be, ptr->RX_STAT0));
+		max_lat = (max_lat * 8) / 1000.0;
+		min_lat = WR_STREAMERS_RX_STAT1_RX_LATENCY_MIN_R(
+			  iomemr32(wrstm->is_be, ptr->RX_STAT1));
+		min_lat = (min_lat * 8) / 1000.0;
+		overflow = WR_STREAMERS_SSCR1_RX_LATENCY_ACC_OVERFLOW &
+		           iomemr32(wrstm->is_be, ptr->SSCR1);
+		//put it all together
+		acc_lat = ((uint64_t)iomemr32(wrstm->is_be, ptr->RX_STAT11)
+			  << 32) |iomemr32(wrstm->is_be, ptr->RX_STAT10);
+		cnt_lat = ((uint64_t)iomemr32(wrstm->is_be, ptr->RX_STAT13)
+			  << 32) | iomemr32(wrstm->is_be, ptr->RX_STAT12);
+		avg_lat = (((double)acc_lat) * 8 / 1000) / (double)cnt_lat;
+		fprintf(stderr, "%s: min=%10g max=%10g avg =%10g "
+			"(0x%x, 0x%x, %lu=%u << 32 | %u)*8/1000 us, "
+			"cnt =%lu overflow =%d)\n", stats_mesg[8][1],
+			min_lat, max_lat, avg_lat,
+			iomemr32(wrstm->is_be, ptr->RX_STAT1),
+			iomemr32(wrstm->is_be, ptr->RX_STAT0),
+			acc_lat, iomemr32(wrstm->is_be, ptr->RX_STAT11),
+			iomemr32(wrstm->is_be, ptr->RX_STAT10),
+			cnt_lat, overflow);
 	}
 
 	//release snapshot
