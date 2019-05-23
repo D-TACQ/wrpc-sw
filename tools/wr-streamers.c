@@ -700,9 +700,10 @@ int main(int argc, char *argv[])
 
 	ret = verify_reg_version();
 	if (ret) {
+		fprintf(stderr, "============== !!! WARNING !!! ===============\n");
 		fprintf(stderr, "Register version in FPGA and SW does not match\n");
-		dev_unmap(wrstm);
-		return -1;
+		fprintf(stderr, "           Using SW at your own risk          \n");
+		fprintf(stderr, "============== !!! WARNING !!! ===============\n");
 	}
 	
 	ret = extest_register_user_cmd(wrstm_cmd, WRSTM_CMD_NB);
