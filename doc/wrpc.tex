@@ -1342,24 +1342,26 @@ All the available commands are listed with \texttt{h}:
 \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 cfv-774-cbt:wrstm[00] > h
 Valid COMMANDS:
-Idx  Name       Params                   Description
-# 1: q          [                   ] -> Quit test program
-# 2: h          [ o c               ] -> Help on commands
-# 3: a          [                   ] -> Atom list commands
-# 4: his        [                   ] -> History
-# 5: s          [ Seconds           ] -> Sleep seconds
-# 6: ms         [ MilliSecs         ] -> Sleep milliseconds
-# 7: sh         [ Unix Cmd          ] -> Shell command
-# 8: stats      [ [0/1/2/3/4/5/6/7] ] -> show streamers statistics
-# 9: reset      [                   ] -> show time of the latest reset / time elapsed since then
-#10: resetcnt   [                   ] -> reset tx/rx/lost counters and avg/min/max latency values
-#11: resetseqid [                   ] -> reset sequence ID of the tx streamer
-#12: lat        [ [latency]         ] -> get/set config of fixed latency in integer [us] (-1 to disable)
-#13: qtagf      [ [0/1]             ] -> QTags flag on off
-#14: qtagvp     [ [VID,prio]        ] -> QTags Get/Set VLAN ID and priority
-#15: qtagor     [ [0/1]             ] -> get/set overriding of default qtag config with WB config (set
-                                         using qtagf, qtagvp)
-#16: ls         [ [leapseconds]     ] -> get/set leap seconds
+Idx  Name        Params                       Description
+# 1: q           [                       ] -> Quit test program
+# 2: h           [ o c                   ] -> Help on commands
+# 3: a           [                       ] -> Atom list commands
+# 4: his         [                       ] -> History
+# 5: s           [ Seconds               ] -> Sleep seconds
+# 6: ms          [ MilliSecs             ] -> Sleep milliseconds
+# 7: sh          [ Unix Cmd              ] -> Shell command
+# 8: stats       [ [0/1/2/3/4/5/6/7]     ] -> show streamers statistics
+# 9: reset       [                       ] -> show time of the latest reset / time elapsed since then
+#10: resetcnt    [                       ] -> reset tx/rx/lost counters and avg/min/max latency values
+#11: resetseqid  [                       ] -> reset sequence ID of the tx streamer
+#12: flat        [ [fixed latency value] ] -> get/set config of fixed latency in integer [us] (-1 to disable)
+#13: flatstats   [                       ] -> get statistics regarding fixed latency operation
+#14: flattimeout [ [timeout value]       ] -> get/set fixed latency timeout [us] (-1 to set default: ~1ms)
+#15: qtagf       [ [0/1]                 ] -> QTags flag on off
+#16: qtagvp      [ [VID,prio]            ] -> QTags Get/Set VLAN ID and priority
+#17: qtagor      [ [0/1]                 ] -> get/set overriding of default qtag config with WB config (set ...
+#18: ls          [ [leapseconds]         ] -> get/set leap seconds
+#19: hdlswreset  [                       ] -> HD software reset of rx and tx streamer HDL modules (excludes ...
 
 Type "h name" to get complete command help
 \end{lstlisting}
@@ -1367,8 +1369,9 @@ In order to see all the WR Streamers statistics, the \texttt{stats} command
 inside the prompt should be executed as follows:
 \begin{lstlisting}
 cfc-774-cbt:wrstm[01] > stats
-Latency [us]    : min=     3.736 max=     8.216 avg =   3.88176 
-Frames  [number]: tx =0 rx =61897834620 lost=0 (lost blocks =0)
+Latency [us]    : min=     3.824 max=     5.656 avg =    3.8958 (overflow    =0)
+Frames  [number]: tx =   1558137 rx =   1558137 lost=         0 (lost blocks =0)
+
 \end{lstlisting}
 
 The commands that are available from the interactive prompt can be also executed directly

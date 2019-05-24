@@ -1,6 +1,6 @@
-\subsection{WR Streamers, status and debug}
+\subsection{WR Transmission control, status and debug}
 \label{subsec:wbgen:wr_streamers}
-[version 0x00000001]\\
+[version 0x00000002]\\
 -----------------------------------------------------------------\\  This WB registers allow to diagnose transmission and reception of\\  data using WR streamers.                                         \\  In particular, these registers provide access to streamer's      \\  statistics that can be also access from SNMP, if supported.      \\  -----------------------------------------------------------------\\  Copyright (c) 2016 CERN/BE-CO-HT and CERN/TE-MS-MM               \\                                                                   \\  This source file is free software; you can redistribute it       \\  and/or modify it under the terms of the GNU Lesser General       \\  Public License as published by the Free Software Foundation;     \\  either version 2.1 of the License, or (at your option) any       \\  later version.                                                   \\                                                                   \\  This source is distributed in the hope that it will be           \\  useful, but WITHOUT ANY WARRANTY; without even the implied       \\  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR          \\  PURPOSE.  See the GNU Lesser General Public License for more     \\  details                                                          \\                                                                   \\  You should have received a copy of the GNU Lesser General        \\  Public License along with this source; if not, download it       \\  from http://www.gnu.org/licenses/lgpl-2.1.html                   \\  -----------------------------------------------------------------
 \subsubsection{Memory map summary}
 \rowcolors{2}{gray!25}{white}
@@ -43,6 +43,14 @@
 0x7c& REG & DBG Control register & wr\_streamers\_dbg\_ctrl & DBG\_CTRL\\
 0x80& REG & DBG Data & wr\_streamers\_dbg\_data & DBG\_DATA\\
 0x84& REG & Test value & wr\_streamers\_dummy & DUMMY\\
+0x88& REG & Reset Register & wr\_streamers\_rstr & RSTR\\
+0x8c& REG & Rx statistics & wr\_streamers\_rx\_stat15 & RX\_STAT15\\
+0x90& REG & Rx statistics & wr\_streamers\_rx\_stat16 & RX\_STAT16\\
+0x94& REG & Rx statistics & wr\_streamers\_rx\_stat17 & RX\_STAT17\\
+0x98& REG & Rx statistics & wr\_streamers\_rx\_stat18 & RX\_STAT18\\
+0x9c& REG & Rx statistics & wr\_streamers\_rx\_stat19 & RX\_STAT19\\
+0xa0& REG & Rx statistics & wr\_streamers\_rx\_stat20 & RX\_STAT20\\
+0xa4& REG & Rx Config Reg 6 & wr\_streamers\_rx\_cfg6 & RX\_CFG6\\
 \hline
 \end{tabular}
 }
@@ -1570,6 +1578,340 @@ DBG\_DATA
 {\bf 
 DUMMY
 } [\emph{read-only}]: DUMMY value to read
+\end{small}
+\end{itemize}
+\paragraph*{Reset Register}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rstr\\
+{\bf HW address:}  & 0x22\\
+{\bf SW prefix:}  & RSTR\\
+{\bf SW offset:}  & 0x88\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{1}{|c}{-} & - & - & - & - & - & - & \multicolumn{1}{c|}{-}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{1}{|c}{-} & - & - & - & - & - & - & \multicolumn{1}{c|}{-}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{1}{|c}{-} & - & - & - & - & - & - & \multicolumn{1}{c|}{-}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{1}{|c}{-} & - & - & - & - & - & - & \multicolumn{1}{|c|}{\cellcolor{RoyalPurple!25}RST\_SW}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RST\_SW
+} [\emph{write-only}]: Software reset streamers
+\\
+Writing 1 triggers a full software reset of the streamers.
+\end{small}
+\end{itemize}
+\paragraph*{Rx statistics}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rx\_stat15\\
+{\bf HW address:}  & 0x23\\
+{\bf SW prefix:}  & RX\_STAT15\\
+{\bf SW offset:}  & 0x8c\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_LSB[31:24]}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_LSB[23:16]}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_LSB[15:8]}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_LSB[7:0]}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RX\_LATE\_FRAMES\_CNT\_LSB
+} [\emph{read-only}]: WR Streamer RX Late Frames Count (LSB)
+\\
+Number of RX frames that missed their fixed-latency deadline
+\end{small}
+\end{itemize}
+\paragraph*{Rx statistics}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rx\_stat16\\
+{\bf HW address:}  & 0x24\\
+{\bf SW prefix:}  & RX\_STAT16\\
+{\bf SW offset:}  & 0x90\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_MSB[31:24]}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_MSB[23:16]}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_MSB[15:8]}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_LATE\_FRAMES\_CNT\_MSB[7:0]}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RX\_LATE\_FRAMES\_CNT\_MSB
+} [\emph{read-only}]: WR Streamer RX Late Frames Count (MSB)
+\\
+Number of RX frames that missed their fixed-latency deadline
+\end{small}
+\end{itemize}
+\paragraph*{Rx statistics}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rx\_stat17\\
+{\bf HW address:}  & 0x25\\
+{\bf SW prefix:}  & RX\_STAT17\\
+{\bf SW offset:}  & 0x94\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_LSB[31:24]}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_LSB[23:16]}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_LSB[15:8]}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_LSB[7:0]}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RX\_TIMEOUT\_FRAMES\_CNT\_LSB
+} [\emph{read-only}]: WR Streamer RX Timed-out Frames Count (LSB)
+\\
+Number of RX frames that had their execution timestamp too far in the future (exceeding the RX\_CFG6 value)
+\end{small}
+\end{itemize}
+\paragraph*{Rx statistics}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rx\_stat18\\
+{\bf HW address:}  & 0x26\\
+{\bf SW prefix:}  & RX\_STAT18\\
+{\bf SW offset:}  & 0x98\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_MSB[31:24]}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_MSB[23:16]}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_MSB[15:8]}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_TIMEOUT\_FRAMES\_CNT\_MSB[7:0]}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RX\_TIMEOUT\_FRAMES\_CNT\_MSB
+} [\emph{read-only}]: WR Streamer RX Timed-out Frames Count (MSB)
+\\
+Number of RX frames that had their execution timestamp too far in the future (exceeding the RX\_CFG6 value)
+\end{small}
+\end{itemize}
+\paragraph*{Rx statistics}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rx\_stat19\\
+{\bf HW address:}  & 0x27\\
+{\bf SW prefix:}  & RX\_STAT19\\
+{\bf SW offset:}  & 0x9c\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_LSB[31:24]}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_LSB[23:16]}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_LSB[15:8]}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_LSB[7:0]}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RX\_MATCH\_FRAMES\_CNT\_LSB
+} [\emph{read-only}]: WR Streamer RX OK Frames Count (LSB)
+\\
+Number of RX executed on time in the fixed latency mode
+\end{small}
+\end{itemize}
+\paragraph*{Rx statistics}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rx\_stat20\\
+{\bf HW address:}  & 0x28\\
+{\bf SW prefix:}  & RX\_STAT20\\
+{\bf SW offset:}  & 0xa0\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_MSB[31:24]}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_MSB[23:16]}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_MSB[15:8]}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_MATCH\_FRAMES\_CNT\_MSB[7:0]}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RX\_MATCH\_FRAMES\_CNT\_MSB
+} [\emph{read-only}]: WR Streamer RX OK Frames Count (MSB)
+\\
+Number of RX executed on time in the fixed latency mode
+\end{small}
+\end{itemize}
+\paragraph*{Rx Config Reg 6}\mbox{}\\\vskip 6pt
+\rowcolors{1}{white}{white}
+\begin{tabular}{l l }
+{\bf HW prefix:}  & wr\_streamers\_rx\_cfg6\\
+{\bf HW address:}  & 0x29\\
+{\bf SW prefix:}  & RX\_CFG6\\
+{\bf SW offset:}  & 0xa4\\
+\end{tabular}
+
+
+\vspace{12pt}
+\noindent
+\resizebox{\textwidth}{!}{
+\begin{tabular}{>{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} >{\centering\arraybackslash}p{1.5cm} }
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24\\
+\hline
+\multicolumn{1}{|c}{-} & - & - & - & \multicolumn{4}{|c|}{\cellcolor{RoyalPurple!25}RX\_FIXED\_LATENCY\_TIMEOUT[27:24]}\\
+\hline
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_FIXED\_LATENCY\_TIMEOUT[23:16]}\\
+\hline
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_FIXED\_LATENCY\_TIMEOUT[15:8]}\\
+\hline
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0\\
+\hline
+\multicolumn{8}{|c|}{\cellcolor{RoyalPurple!25}RX\_FIXED\_LATENCY\_TIMEOUT[7:0]}\\
+\hline
+\end{tabular}
+}
+
+\begin{itemize}
+\item \begin{small}
+{\bf 
+RX\_FIXED\_LATENCY\_TIMEOUT
+} [\emph{read/write}]: RX Fixed Latency Timeout (Default: 0x1000000=~134ms)
 \end{small}
 \end{itemize}
 

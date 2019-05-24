@@ -42,7 +42,11 @@ type with three possible values:
 \item[PLAIN:] No additional module is instantiated and the ``raw'' WRPC fabric interface (see also
   Section~\ref{sec:wrpc_fabric}) is provided on the board's ports.
 \item[STREAMERS:] A set of \href{http://www.ohwr.org/projects/wr-cores/wiki/WR_Streamers}{TX/RX
-  streamers} is attached to the WRPC fabric interface.
+  streamers} is attached to the WRPC fabric interface.\\
+  \textbf{Note:} The STREAMERS interface can be synchronous to either \textit{clk\_sys\_62m5}
+  or \textit{clk\_ref\_125m}. By default it is synchronous to \textit{clk\_sys\_62m5}. Generic
+  can be used to provide data in the \textit{clk\_ref\_125m} clock domain (this is useful for
+  fixed-latency data transmission).
 \item[ETHERBONE:] An \href{http://www.ohwr.org/projects/etherbone-core/wiki}{Etherbone} slave node
   is attached to the WRPC fabric interface.
 \end{description}
@@ -173,7 +177,8 @@ their own BSP, can find the board-common module under:
   \hline
   \hdltablesection{WR streamers (when \tts{g\_fabric\_iface = streamers})}\\
   \hline
-  wrs\_tx\_data\_i & in &  var & Data to be sent. Size is equal to \tts{g\_tx\_streamer\_width}\\
+  wrs\_tx\_data\_i & in &  var & Data to be sent. Size and clock domain
+  configurable via \tts{g\_tx\_streamer\_params}, \textit{clk\_sys\_62m5} by dafault. \\
   \hline
   wrs\_tx\_valid\_i & in & 1 & Indicates whether \tts{wrs\_tx\_data\_i} contains valid data\\
   \hline
@@ -197,7 +202,8 @@ their own BSP, can find the board-common module under:
   \hline
   wrs\_rx\_last\_o & out & 1 & Indicates the last word of the data block on \tts{wrs\_rx\_data\_o}\\
   \hline
-  wrs\_rx\_data\_o & out & var & Received data. Size is equal to \tts{g\_rx\_streamer\_width}\\
+  wrs\_rx\_data\_o & out & var & Received data. Size and clock domain
+  configurable via \tts{g\_rx\_streamer\_params}, \textit{clk\_sys\_62m5} by dafault.\\
   \hline
   wrs\_rx\_valid\_o & out & 1 & Indicates that \tts{wrs\_rx\_data\_o} contains valid data\\
   \hline
