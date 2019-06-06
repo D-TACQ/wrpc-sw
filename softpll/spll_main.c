@@ -31,8 +31,8 @@ void mpll_init(struct spll_main_state *s, int id_ref,
 	s->pi.anti_windup = 1;
 	s->pi.bias = 30000;
 #if defined(CONFIG_WR_SWITCH)
-	s->pi.kp = 1100;		// / 2;
-	s->pi.ki = 30;			// / 2;
+	s->pi.kp = -1100;		// / 2;
+	s->pi.ki = -30;			// / 2;
 #elif defined(CONFIG_WR_NODE)
 	s->pi.kp = -1100;		// / 2;
 	s->pi.ki = -30;			// / 2;
