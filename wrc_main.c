@@ -59,7 +59,7 @@ static void wrc_initialize(void)
 	sdb_find_devices();
 	uart_init_hw();
 
-	pp_printf("WR Core: starting up...\n");
+	pp_printf("WR Core: pgmwashere starting up...\n");
 
 	timer_init(1);
 	get_hw_name(wrc_hw_name);

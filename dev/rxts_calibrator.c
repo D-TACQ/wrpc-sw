@@ -218,6 +218,8 @@ static int calib_t24p_master(uint32_t *value)
 {
 	int rv;
 
+	return 0;
+
 	rv = storage_phtrans(value, 0);
 	if(rv < 0) {
 		pp_printf("Error %d while reading t24p from storage\n", rv);
