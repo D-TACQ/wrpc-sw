@@ -52,6 +52,8 @@ static uint32_t prev_nanos_for_profile;
 static uint32_t prev_ticks_for_profile;
 uint32_t print_task_time_threshold = CONFIG_DEFAULT_PRINT_TASK_TIME_THRESHOLD;
 
+
+
 static void wrc_initialize(void)
 {
 	uint8_t mac_addr[6];
@@ -59,7 +61,7 @@ static void wrc_initialize(void)
 	sdb_find_devices();
 	uart_init_hw();
 
-	pp_printf("WR Core: pgmwashere starting up...\n");
+	pp_printf("\nWR Core: pgmwashere 100 starting up...\n");
 
 	timer_init(1);
 	get_hw_name(wrc_hw_name);
@@ -78,6 +80,7 @@ static void wrc_initialize(void)
 	/*init storage (Flash / W1 EEPROM / I2C EEPROM*/
 	storage_init(WRPC_FMC_I2C, FMC_EEPROM_ADR);
 
+	if (get_acq2106_mac(mac_addr, 6) == -1)
 	if (get_persistent_mac(ONEWIRE_PORT, mac_addr) == -1) {
 		pp_printf("Unable to determine MAC address\n");
 		mac_addr[0] = 0x22;	/*

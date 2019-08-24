@@ -33,7 +33,10 @@ MEMORY
 {
     ram :
 	ORIGIN = 0x00000000,
-	LENGTH = CONFIG_RAMSIZE - CONFIG_STACKSIZE
+	LENGTH = CONFIG_RAMSIZE - CONFIG_STACKSIZE - 2048
+	hprams :
+ 	ORIGIN = CONFIG_RAMSIZE - CONFIG_STACKSIZE - 2048,
+	LENGTH = 2048
     stack :
 	ORIGIN = CONFIG_RAMSIZE - CONFIG_STACKSIZE,
 	LENGTH = CONFIG_STACKSIZE
@@ -59,6 +62,8 @@ SECTIONS
 		_ebss = .;
 	} > ram
 
+	/* _hostprams : parameters from host */
+	PROVIDE(_hostprams = ORIGIN(hprams));
 	/* End of RAM for checking stack overflows */
 	PROVIDE(_endram = ORIGIN(stack));
 

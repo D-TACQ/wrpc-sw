@@ -28,6 +28,26 @@ void get_hw_name(char *str)
 	memcpy(str, &val, HW_NAME_LENGTH-1);
 }
 
+extern char _hostprams;
+
+int get_acq2106_mac(uint8_t* mac_addr, int max_mac)
+{
+	char* hp = &_hostprams;
+
+	if (*(unsigned*)hp == 0xacacacac){		// endian safe!
+		int imac = 0;
+		for (hp+=4; imac < max_mac; ++imac, ++hp){
+			mac_addr[imac] = *hp;
+		}
+		pp_printf("get_acq2106_mac() ");
+		for (imac = 0; imac < max_mac; ++imac){
+			pp_printf("%02x%c", mac_addr[imac], imac+1==max_mac? '\n': ':');
+		}
+		return 0;
+	}else{
+		return -1;
+	}
+}
 /****************************
  *       Flash info
  ***************************/

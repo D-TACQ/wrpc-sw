@@ -131,6 +131,7 @@ static inline int sysc_get_memsize(void)
 
 #define HW_NAME_LENGTH 5 /* 4 letters + '\0' */
 void get_hw_name(char *str);
+int get_acq2106_mac(uint8_t* mac_addr, int max_mac);
 void get_storage_info(int *memtype, uint32_t *sdbfs_baddr, uint32_t *blocksize);
 
 #define DIAG_RW_BANK 0
