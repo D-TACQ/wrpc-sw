@@ -111,7 +111,7 @@ CFLAGS = $(cflags-y) -Wall -Wstrict-prototypes \
 ASFLAGS = -I.
 
 LDFLAGS = $(ldflags-y) \
-	-Wl,--gc-sections -Os -lgcc -lc
+	-Wl,--gc-sections -Os -lgcc -lc -Xlinker -Map=$(OUTPUT).map
 
 WRC-O-FLAGS-$(CONFIG_LM32) = --gc-sections -e _start
 
