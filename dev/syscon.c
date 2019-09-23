@@ -39,6 +39,7 @@ int get_acq2106_mac(uint8_t* mac_addr, int max_mac)
 		for (hp+=4; imac < max_mac; ++imac, ++hp){
 			mac_addr[imac] = *hp;
 		}
+		((unsigned*)hp)[3] = 0x12345678;
 		pp_printf("get_acq2106_mac() ");
 		for (imac = 0; imac < max_mac; ++imac){
 			pp_printf("%02x%c", mac_addr[imac], imac+1==max_mac? '\n': ':');

@@ -64,6 +64,9 @@ SECTIONS
 
 	/* _hostprams : parameters from host */
 	PROVIDE(_hostprams = ORIGIN(hprams));
+	PROVIDE(sfp_deltaTx = ORIGIN(hprams)+0x20);
+	PROVIDE(sfp_deltaRx = ORIGIN(hprams)+0x24);
+
 	/* End of RAM for checking stack overflows */
 	PROVIDE(_endram = ORIGIN(stack));
 

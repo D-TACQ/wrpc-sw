@@ -20,8 +20,8 @@
 
 /* Calibration data (from EEPROM if available) */
 int32_t sfp_alpha = 73622176; /* default values if could not read EEPROM */
-int32_t sfp_deltaTx = 0;
-int32_t sfp_deltaRx = 0;
+//int32_t sfp_deltaTx = 0;
+//int32_t sfp_deltaRx = 0;
 int32_t sfp_in_db = 0;
 
 char sfp_pn[SFP_PN_LEN];
